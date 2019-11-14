@@ -1,4 +1,2 @@
 # Networking
-Java UDP/TCP networking library
-
-A hardware-limited, client-server Java networking API.
+A UDP/TCP, client-server, hardware-limited Java networking API.
