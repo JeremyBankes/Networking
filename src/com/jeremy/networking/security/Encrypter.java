@@ -1,4 +1,4 @@
-package com.jeremy.networking.v1_0;
+package com.jeremy.networking.security;
 
 import java.security.GeneralSecurityException;
 import java.security.Key;
