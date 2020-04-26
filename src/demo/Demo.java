@@ -1,3 +1,4 @@
+package demo;
 import java.io.IOException;
 
 import com.jeremy.networking.Client;
@@ -9,7 +10,7 @@ public class Demo {
 
 		new Thread(() -> {
 			try {
-				Server server = new GameServer(2300);
+				Server server = new DemoServer(2300);
 				server.start();
 			} catch (IOException exception) {
 				exception.printStackTrace();
@@ -18,7 +19,7 @@ public class Demo {
 
 		new Thread(() -> {
 			try {
-				Client client = new GameClient();
+				Client client = new DemoClient();
 				client.connect("localhost", 2300);
 				client.send("Hello World\n".getBytes());
 			} catch (IOException exception) {

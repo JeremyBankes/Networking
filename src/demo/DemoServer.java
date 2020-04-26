@@ -1,3 +1,4 @@
+package demo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +8,9 @@ import java.io.PrintStream;
 
 import com.jeremy.networking.Server;
 
-public class GameServer extends Server {
+public class DemoServer extends Server {
 
-	public GameServer(int port) throws IOException {
+	public DemoServer(int port) throws IOException {
 		super(port);
 	}
 

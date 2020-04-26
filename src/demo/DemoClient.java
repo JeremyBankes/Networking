@@ -1,3 +1,4 @@
+package demo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -5,7 +6,7 @@ import java.io.InputStreamReader;
 
 import com.jeremy.networking.Client;
 
-public class GameClient extends Client {
+public class DemoClient extends Client {
 
 	@Override
 	protected void onConnect() {
