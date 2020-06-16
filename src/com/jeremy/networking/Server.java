@@ -77,6 +77,11 @@ public abstract class Server {
 				onException(exception);
 			}
 		}
+		try {
+			socket.close();
+		} catch (IOException exception) {
+			onException(exception);
+		}
 		executor.shutdown();
 	}
 
@@ -152,6 +157,13 @@ public abstract class Server {
 
 	private static boolean isSocketEqualAddress(Socket socket, String address, int port) {
 		return socket.getInetAddress().getHostAddress().equals(address) && socket.getPort() == port;
+	}
+
+	/**
+	 * @return All currently connected clients
+	 */
+	public HashSet<Socket> getConnected() {
+		return connected;
 	}
 
 }

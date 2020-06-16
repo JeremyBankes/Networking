@@ -12,6 +12,15 @@ public class Client {
 
 	private Thread thread;
 
+	/**
+	 * Attempts to make a connection to the given serverAddress:serverPort
+	 * 
+	 * @param serverAddress The address of a listening com.jeremy.networking.Server
+	 * @param serverPort    The port of the listening server
+	 * @throws UnknownHostException If the IP address of the host could not be
+	 *                              determined.
+	 * @throws IOException          If an I/O error occurs when creating the socket.
+	 */
 	public void connect(String serverAddress, int serverPort) throws UnknownHostException, IOException {
 		if (!isConnected()) {
 			socket = new Socket(serverAddress, serverPort);
