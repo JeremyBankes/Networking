@@ -1,4 +1,5 @@
 package demo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,11 +7,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import com.jeremy.networking.Server;
+import com.jeremy.networking.TCPServer;
 
-public class DemoServer extends Server {
+public class TCPDemoServer extends TCPServer {
 
-	public DemoServer(int port) throws IOException {
+	public TCPDemoServer(int port) throws IOException {
 		super(port);
 	}
 
@@ -48,6 +49,11 @@ public class DemoServer extends Server {
 	@Override
 	public void onDisconnect(String address, int port) {
 		System.out.printf("[SERVER] A user has disconnected. (%s:%d)%n", address, port);
+	}
+
+	@Override
+	protected void onException(Exception exception) {
+		// Handle exception
 	}
 
 }

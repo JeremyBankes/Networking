@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.jeremy.networking.Client;
+import com.jeremy.networking.TCPClient;
 
-public class DemoClient extends Client {
+public class TCPDemoClient extends TCPClient {
 
 	@Override
 	protected void onConnect() {
@@ -35,7 +35,7 @@ public class DemoClient extends Client {
 
 	@Override
 	protected void onException(Exception exception) {
-		exception.printStackTrace();
+		// Handle exception
 	}
 
 }

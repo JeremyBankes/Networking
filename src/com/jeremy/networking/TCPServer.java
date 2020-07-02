@@ -10,15 +10,21 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class Server {
+public abstract class TCPServer {
 
-	private ServerSocket socket;
-	private final HashSet<Socket> connected;
+	protected ServerSocket socket;
+	protected final HashSet<Socket> connected;
 
 	private boolean running;
 	private Thread thread;
 
-	public Server(int port) throws IOException {
+	/**
+	 * Creates a TCPServer and binds it to the specified port on the local machine.
+	 * 
+	 * @param port The port on which to listen for client connections.
+	 * @throws IOException If an I/O error occurs when opening the socket.
+	 */
+	public TCPServer(int port) throws IOException {
 		socket = new ServerSocket(port);
 		socket.setSoTimeout(1000);
 
@@ -86,7 +92,7 @@ public abstract class Server {
 	}
 
 	/**
-	 * Called internally by com.jeremy.networking.Server when a new client connects.
+	 * Called internally by com.jeremy.networking.TCPServer when a new client connects.
 	 * This method is executed within its own thread. When is finishes, the client
 	 * will be disconnected. Keep this thread alive to maintain a connection with
 	 * the client. This method is meant to be overridden.
@@ -99,7 +105,7 @@ public abstract class Server {
 	protected void onReceiveClient(String address, int port, InputStream inputStream, OutputStream outputStream) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Server if an exception occurs
+	 * Called internally by com.jeremy.networking.TCPServer if an exception occurs
 	 * while handling a client. This method is meant to be overridden.
 	 * 
 	 * @param exception The exception created when handling a client
@@ -107,7 +113,7 @@ public abstract class Server {
 	protected void onException(Exception exception) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Server when a client connects to
+	 * Called internally by com.jeremy.networking.TCPServer when a client connects to
 	 * the server. This method is meant to be overridden.
 	 * 
 	 * @param address The address of the connected client
@@ -116,7 +122,7 @@ public abstract class Server {
 	protected void onConnect(String address, int port) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Server when a client disconnects
+	 * Called internally by com.jeremy.networking.TCPServer when a client disconnects
 	 * from the server. This method is meant to be overridden.
 	 * 
 	 * @param address The address of the disconnected client

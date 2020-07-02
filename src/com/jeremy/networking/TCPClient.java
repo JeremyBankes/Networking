@@ -6,16 +6,17 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Client {
+public class TCPClient {
 
-	private Socket socket;
+	protected Socket socket;
 
 	private Thread thread;
 
 	/**
 	 * Attempts to make a connection to the given serverAddress:serverPort
 	 * 
-	 * @param serverAddress The address of a listening com.jeremy.networking.Server
+	 * @param serverAddress The address of a listening
+	 *                      com.jeremy.networking.TCPServer
 	 * @param serverPort    The port of the listening server
 	 * @throws UnknownHostException If the IP address of the host could not be
 	 *                              determined.
@@ -47,19 +48,19 @@ public class Client {
 	}
 
 	/**
-	 * Called internally by com.jeremy.networking.Client when the client
+	 * Called internally by com.jeremy.networking.TCPClient when the client
 	 * successfully makes a connection to the server.
 	 */
 	protected void onConnect() {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Client when the client is
+	 * Called internally by com.jeremy.networking.TCPClient when the client is
 	 * disconnected from the server.
 	 */
 	protected void onDisconnect() {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Client if an exception occurs
+	 * Called internally by com.jeremy.networking.TCPClient if an exception occurs
 	 * while communicating with the server. This method is meant to be overridden.
 	 * 
 	 * @param exception The exception created when communicating with the server
@@ -67,7 +68,7 @@ public class Client {
 	protected void onException(Exception exception) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.Client when the client makes a
+	 * Called internally by com.jeremy.networking.TCPClient when the client makes a
 	 * successful connection to the server. This method is executed within its own
 	 * thread. When is finishes, the client will be disconnected. Keep this thread
 	 * alive to maintain a connection with the server. This method is meant to be
@@ -89,6 +90,11 @@ public class Client {
 		return socket != null && socket.isConnected() && !socket.isClosed();
 	}
 
+	/**
+	 * Disconnects from the server. (Closes internal socket)
+	 * 
+	 * @throws IOException If an I/O error occurs when closing this socket.
+	 */
 	public void disconnect() throws IOException {
 		if (socket != null) socket.close();
 	}
