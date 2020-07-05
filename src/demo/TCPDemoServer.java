@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
 
 import com.jeremy.networking.TCPServer;
 
@@ -16,12 +17,12 @@ public class TCPDemoServer extends TCPServer {
 	}
 
 	@Override
-	public void onConnect(String address, int port) {
+	public void onConnect(InetAddress address, int port) {
 		System.out.printf("[SERVER] A user has connected. (%s:%d)%n", address, port);
 	}
 
 	@Override
-	protected void onReceiveClient(String address, int port, InputStream inputStream, OutputStream outputStream) {
+	protected void onReceiveClient(InetAddress address, int port, InputStream inputStream, OutputStream outputStream) {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 			PrintStream writer = new PrintStream(outputStream);
@@ -47,8 +48,8 @@ public class TCPDemoServer extends TCPServer {
 	}
 
 	@Override
-	public void onDisconnect(String address, int port) {
-		System.out.printf("[SERVER] A user has disconnected. (%s:%d)%n", address, port);
+	public void onDisconnect(InetAddress address, int port) {
+		System.out.printf("[SERVER] A user has disconnected. (%s:%d)%n", address.getHostAddress(), port);
 	}
 
 	@Override

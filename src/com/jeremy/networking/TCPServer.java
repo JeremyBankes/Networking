@@ -3,6 +3,7 @@ package com.jeremy.networking;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -62,7 +63,7 @@ public abstract class TCPServer {
 		while (running) {
 			try {
 				final Socket clientSocket = socket.accept();
-				final String address = clientSocket.getInetAddress().getHostName();
+				final InetAddress address = clientSocket.getInetAddress();
 				final int port = clientSocket.getPort();
 				final InputStream inputStream = clientSocket.getInputStream();
 				final OutputStream outputStream = clientSocket.getOutputStream();
@@ -92,17 +93,17 @@ public abstract class TCPServer {
 	}
 
 	/**
-	 * Called internally by com.jeremy.networking.TCPServer when a new client connects.
-	 * This method is executed within its own thread. When is finishes, the client
-	 * will be disconnected. Keep this thread alive to maintain a connection with
-	 * the client. This method is meant to be overridden.
+	 * Called internally by com.jeremy.networking.TCPServer when a new client
+	 * connects. This method is executed within its own thread. When is finishes,
+	 * the client will be disconnected. Keep this thread alive to maintain a
+	 * connection with the client. This method is meant to be overridden.
 	 * 
 	 * @param address      The address of the connected client
 	 * @param port         The port on which the client has connected
 	 * @param inputStream  The stream in which client messages can be read
 	 * @param outputStream The stream in which messages to the client can be written
 	 */
-	protected void onReceiveClient(String address, int port, InputStream inputStream, OutputStream outputStream) {}
+	protected void onReceiveClient(InetAddress address, int port, InputStream inputStream, OutputStream outputStream) {}
 
 	/**
 	 * Called internally by com.jeremy.networking.TCPServer if an exception occurs
@@ -113,22 +114,22 @@ public abstract class TCPServer {
 	protected void onException(Exception exception) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.TCPServer when a client connects to
-	 * the server. This method is meant to be overridden.
+	 * Called internally by com.jeremy.networking.TCPServer when a client connects
+	 * to the server. This method is meant to be overridden.
 	 * 
 	 * @param address The address of the connected client
 	 * @param port    The port on which the client connected
 	 */
-	protected void onConnect(String address, int port) {}
+	protected void onConnect(InetAddress address, int port) {}
 
 	/**
-	 * Called internally by com.jeremy.networking.TCPServer when a client disconnects
-	 * from the server. This method is meant to be overridden.
+	 * Called internally by com.jeremy.networking.TCPServer when a client
+	 * disconnects from the server. This method is meant to be overridden.
 	 * 
 	 * @param address The address of the disconnected client
 	 * @param port    The port on which the client disconnected
 	 */
-	protected void onDisconnect(String address, int port) {}
+	protected void onDisconnect(InetAddress address, int port) {}
 
 	/**
 	 * Determines if a client is connected.
@@ -137,7 +138,7 @@ public abstract class TCPServer {
 	 * @param port    The port of a potentially connected client
 	 * @return Whether the client is connected
 	 */
-	public boolean isConnected(String address, int port) {
+	public boolean isConnected(InetAddress address, int port) {
 		return connected.stream().anyMatch(socket -> isSocketEqualAddress(socket, address, port));
 	}
 
@@ -147,7 +148,7 @@ public abstract class TCPServer {
 	 * @param address The address of the client to disconnect
 	 * @param port    The port on which the client to disconnect is connected
 	 */
-	public void disconnect(String address, int port) {
+	public void disconnect(InetAddress address, int port) {
 		connected.removeIf(socket -> {
 			if (isSocketEqualAddress(socket, address, port)) {
 				try {
@@ -161,8 +162,8 @@ public abstract class TCPServer {
 		});
 	}
 
-	private static boolean isSocketEqualAddress(Socket socket, String address, int port) {
-		return socket.getInetAddress().getHostAddress().equals(address) && socket.getPort() == port;
+	private static boolean isSocketEqualAddress(Socket socket, InetAddress address, int port) {
+		return socket.getInetAddress() == address && socket.getPort() == port;
 	}
 
 	/**
