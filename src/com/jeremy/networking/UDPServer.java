@@ -3,7 +3,6 @@ package com.jeremy.networking;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
@@ -61,7 +60,7 @@ public class UDPServer {
 				byte[] buffer = new byte[receivePacketSize];
 				DatagramPacket packet = new DatagramPacket(buffer, receivePacketSize);
 				serverSocket.receive(packet);
-				onReceivePacket(packet.getAddress(), packet.getPort(), packet.getData());
+				onReceivePacket(new Endpoint(packet.getAddress(), packet.getPort()), packet.getData());
 			} catch (SocketTimeoutException exception) { //
 			} catch (IOException exception) {
 				onException(exception);
@@ -73,11 +72,11 @@ public class UDPServer {
 	 * Called internally by com.jeremy.networking.UDPServer when a packet is
 	 * received from a client. This method is meant to be overridden.
 	 * 
-	 * @param address The address of the client who send the packet
-	 * @param port    The port on which the client send the packet
-	 * @param data    The data in the received packet
+	 * @param client The endpoint (address/port pair) of the client of which a
+	 *               packet was received
+	 * @param data   The data in the received packet
 	 */
-	protected void onReceivePacket(InetAddress address, int port, byte[] data) {}
+	protected void onReceivePacket(Endpoint client, byte[] data) {}
 
 	/**
 	 * Called internally by com.jeremy.networking.UDPServer if an exception occurs
@@ -90,13 +89,13 @@ public class UDPServer {
 	/**
 	 * Sends a packet to a given address and port
 	 * 
-	 * @param address The address to which the packet is being sent
-	 * @param port    The port on which the packet is to be sent
-	 * @param data    The data that is to be send
+	 * @param client The endpoint (address/port pair) of the client to which the
+	 *               packet is to be sent
+	 * @param data   The data that is to be send
 	 * @throws IOException if an I/O error occurs.
 	 */
-	public void send(InetAddress address, int port, byte[] data) throws IOException {
-		serverSocket.send(new DatagramPacket(data, data.length, address, port));
+	public void send(Endpoint client, byte[] data) throws IOException {
+		serverSocket.send(new DatagramPacket(data, data.length, client.address, client.port));
 	}
 
 }

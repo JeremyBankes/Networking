@@ -3,18 +3,18 @@ package com.jeremy.networking;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class TCPServer {
 
 	protected ServerSocket socket;
-	protected final HashSet<Socket> connected;
+	protected final HashMap<Endpoint, Socket> connected;
 
 	private boolean running;
 	private Thread thread;
@@ -29,7 +29,7 @@ public abstract class TCPServer {
 		socket = new ServerSocket(port);
 		socket.setSoTimeout(1000);
 
-		connected = new HashSet<>();
+		connected = new HashMap<>();
 	}
 
 	/**
@@ -63,20 +63,23 @@ public abstract class TCPServer {
 		while (running) {
 			try {
 				final Socket clientSocket = socket.accept();
-				final InetAddress address = clientSocket.getInetAddress();
-				final int port = clientSocket.getPort();
+				final Endpoint client = new Endpoint(clientSocket.getInetAddress(), clientSocket.getPort());
 				final InputStream inputStream = clientSocket.getInputStream();
 				final OutputStream outputStream = clientSocket.getOutputStream();
 				executor.execute(() -> {
 					try {
-						connected.add(clientSocket);
-						onConnect(address, port);
-						onReceiveClient(address, port, inputStream, outputStream);
+						connected.put(client, clientSocket);
+						onConnect(client);
+						onReceiveClient(client, inputStream, outputStream);
 					} catch (Exception exception) {
 						exception.printStackTrace();
 					} finally {
-						disconnect(address, port);
-						onDisconnect(address, port);
+						try {
+							disconnect(client);
+						} catch (IOException exception) {
+							onException(exception);
+						}
+						onDisconnect(client);
 					}
 				});
 			} catch (SocketTimeoutException exception) { //
@@ -98,12 +101,11 @@ public abstract class TCPServer {
 	 * the client will be disconnected. Keep this thread alive to maintain a
 	 * connection with the client. This method is meant to be overridden.
 	 * 
-	 * @param address      The address of the connected client
-	 * @param port         The port on which the client has connected
+	 * @param client       The endpoint on which the connected client
 	 * @param inputStream  The stream in which client messages can be read
 	 * @param outputStream The stream in which messages to the client can be written
 	 */
-	protected void onReceiveClient(InetAddress address, int port, InputStream inputStream, OutputStream outputStream) {}
+	protected void onReceiveClient(Endpoint client, InputStream inputStream, OutputStream outputStream) {}
 
 	/**
 	 * Called internally by com.jeremy.networking.TCPServer if an exception occurs
@@ -117,60 +119,43 @@ public abstract class TCPServer {
 	 * Called internally by com.jeremy.networking.TCPServer when a client connects
 	 * to the server. This method is meant to be overridden.
 	 * 
-	 * @param address The address of the connected client
-	 * @param port    The port on which the client connected
+	 * @param client The endpoint of the newly connected client
 	 */
-	protected void onConnect(InetAddress address, int port) {}
+	protected void onConnect(Endpoint client) {}
 
 	/**
 	 * Called internally by com.jeremy.networking.TCPServer when a client
 	 * disconnects from the server. This method is meant to be overridden.
 	 * 
-	 * @param address The address of the disconnected client
-	 * @param port    The port on which the client disconnected
+	 * @param client The endpoint of the disconnected client
 	 */
-	protected void onDisconnect(InetAddress address, int port) {}
+	protected void onDisconnect(Endpoint client) {}
 
 	/**
 	 * Determines if a client is connected.
 	 * 
-	 * @param address The address of a potentially connected client
-	 * @param port    The port of a potentially connected client
+	 * @param address The endpoint of the potentially connected client
 	 * @return Whether the client is connected
 	 */
-	public boolean isConnected(InetAddress address, int port) {
-		return connected.stream().anyMatch(socket -> isSocketEqualAddress(socket, address, port));
+	public boolean isConnected(Endpoint client) {
+		return connected.containsKey(client);
 	}
 
 	/**
 	 * Disconnects a client from the server.
 	 * 
-	 * @param address The address of the client to disconnect
-	 * @param port    The port on which the client to disconnect is connected
+	 * @param endpoint The endpoint of the client to disconnect
+	 * @throws IOException If an I/O error occurs when closing this socket.
 	 */
-	public void disconnect(InetAddress address, int port) {
-		connected.removeIf(socket -> {
-			if (isSocketEqualAddress(socket, address, port)) {
-				try {
-					socket.close();
-				} catch (IOException exception) {
-					exception.printStackTrace();
-				}
-				return true;
-			}
-			return false;
-		});
-	}
-
-	private static boolean isSocketEqualAddress(Socket socket, InetAddress address, int port) {
-		return socket.getInetAddress() == address && socket.getPort() == port;
+	public void disconnect(Endpoint endpoint) throws IOException {
+		connected.remove(endpoint).close();
 	}
 
 	/**
 	 * @return All currently connected clients
 	 */
-	public HashSet<Socket> getConnected() {
-		return connected;
+	public Set<Endpoint> getConnected() {
+		return connected.keySet();
 	}
 
 }

@@ -3,7 +3,6 @@ package com.jeremy.networking;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 
 public class UDPClient {
@@ -13,8 +12,7 @@ public class UDPClient {
 	private DatagramPacket incomingPacket;
 	private int receivePacketSize;
 
-	private final InetAddress serverAddress;
-	private final int serverPort;
+	private final Endpoint server;
 
 	private boolean listening;
 	private Thread listenThread;
@@ -22,15 +20,12 @@ public class UDPClient {
 	/**
 	 * Crates a UDPClient and binds it to any available port on the local machine.
 	 * 
-	 * @param serverAddress     The address of the server outgoing packets will be
-	 *                          sent to.
-	 * @param serverPort        The port on which outgoing packets will be sent on.
+	 * @param server            The end point (address/port pair) of the server
 	 * @param receivePacketSize The buffer size for receiving server packets.
 	 * @throws SocketException If the socket could not be opened.
 	 */
-	public UDPClient(InetAddress serverAddress, int serverPort, int receivePacketSize) throws SocketException {
-		this.serverAddress = serverAddress;
-		this.serverPort = serverPort;
+	public UDPClient(Endpoint server, int receivePacketSize) throws SocketException {
+		this.server = server;
 		this.receivePacketSize = receivePacketSize;
 		buffer = new byte[receivePacketSize];
 		socket = new DatagramSocket();
@@ -90,7 +85,7 @@ public class UDPClient {
 	 * @throws IOException If an I/O error occurs.
 	 */
 	public void send(byte[] data) throws IOException {
-		socket.send(new DatagramPacket(data, data.length, serverAddress, serverPort));
+		socket.send(new DatagramPacket(data, data.length, server.address, server.port));
 	}
 
 }
