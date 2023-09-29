@@ -1,5 +1,5 @@
 # Networking API
-A TCP, client-server, hardware-limited Java networking API.
+A TCP, client-server, Java networking API.
 
 ## Overview
 This API is a lightweight TCP/UDP networking API ideal for simple Client/Server applications.
